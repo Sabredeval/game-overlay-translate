@@ -1,4 +1,3 @@
-import threading
 import tkinter as tk
 import keyboard
 from pynput import mouse
@@ -21,10 +20,6 @@ class GlobalSelectionApp:
 
         self.rect_id = None
 
-        threading.Thread(target=self.listen_for_hotkey, daemon=True).start()
-        threading.Thread(target=self.listen_for_mouse, daemon=True).start()
-
-    def listen_for_hotkey(self):
         keyboard.add_hotkey("ctrl+e", self.on_ctrl_e)
         keyboard.add_hotkey("esc", self.on_esc)
 
@@ -32,6 +27,7 @@ class GlobalSelectionApp:
         print("Selection mode activated")
         self.activate = True
         self.root.deiconify()
+        self.listen_for_mouse()
 
     def on_esc(self):
         if self.activate:
