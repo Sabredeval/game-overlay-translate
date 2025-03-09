@@ -1,6 +1,7 @@
 import tkinter as tk
 import keyboard
 from pynput import mouse
+from screen_capture import screenshot
 
 class GlobalSelectionApp:
     def __init__(self):
@@ -42,11 +43,11 @@ class GlobalSelectionApp:
     def on_mouse_press(self, x, y, button, pressed):
         if self.activate and button == mouse.Button.left and pressed:
             self.start_x, self.start_y = x, y
-            print(f"Selection started at ({x}, {y})")
             self.rect_id = self.canvas.create_rectangle(x, y, x, y, outline="red", width=2)
-        elif not pressed and self.activate and button == mouse.Button.left:
-            print(f"Selection ended at ({x}, {y})")
-            print(f"Selection area: ({self.start_x}, {self.start_y}) to ({x}, {y})")
+        elif self.activate and button == mouse.Button.left and not pressed :
+            capture = screenshot(self.start_x, self.start_y, 
+                                 x - self.start_x, y - self.start_y)
+            print("Saved as output.png")
             self.cancel_selection()
 
     def on_mouse_move(self, x, y):
