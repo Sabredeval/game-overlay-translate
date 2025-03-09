@@ -1,8 +1,10 @@
-import mss.tools
+from PIL import ImageGrab
 
 def screenshot(x, y, width, height):
-    with mss.mss() as sct:
-        monitor = {"top": y, "left": x, "width": width, "height": height}
-        sct_img = sct.grab(monitor)
-        mss.tools.to_png(sct_img.rgb, sct_img.size, output="output/img.png")
-        return(sct_img)
+    bbox = (x, y, x + width, y + height)
+    img = ImageGrab.grab(bbox)
+    save_img(img)
+    return img
+
+def save_img(img):
+    img.save("output/img.png")
