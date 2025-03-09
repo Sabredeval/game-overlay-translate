@@ -23,23 +23,21 @@ class GlobalSelectionApp:
         keyboard.add_hotkey("ctrl+e", self.on_ctrl_e)
         keyboard.add_hotkey("esc", self.on_esc)
 
+        self.mouse_listener = mouse.Listener(
+            on_click=self.on_mouse_press,
+            on_move=self.on_mouse_move
+        )
+
     def on_ctrl_e(self):
         print("Selection mode activated")
         self.activate = True
         self.root.deiconify()
-        self.listen_for_mouse()
+        self.mouse_listener.start()
 
     def on_esc(self):
         if self.activate:
             print("Selection cancelled")
             self.cancel_selection()
-
-    def listen_for_mouse(self):
-        with mouse.Listener(
-            on_click=self.on_mouse_press,
-            on_move=self.on_mouse_move,
-        ) as listener:
-            listener.join()
 
     def on_mouse_press(self, x, y, button, pressed):
         if self.activate and button == mouse.Button.left and pressed:
@@ -62,6 +60,11 @@ class GlobalSelectionApp:
             self.canvas.delete(self.rect_id)
         self.start_x, self.start_y = None, None
         self.rect_id = None
+        self.mouse_listener.stop()
+        self.mouse_listener = mouse.Listener(
+            on_click=self.on_mouse_press,
+            on_move=self.on_mouse_move
+        )
 
 if __name__ == "__main__":
     app = GlobalSelectionApp()
