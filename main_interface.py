@@ -202,20 +202,16 @@ class MainInterface(tk.Tk):
                 display_text = f"{star} {word_text} ({lang})"
                 word_listbox.insert(tk.END, display_text)
         
-        # Initialize list with all saved words
         word_items = self.word_db.get_saved_words()
         update_word_list(word_items)
 
     def save_word(self):
-        # Gets user selected text
         if self.native_text_widget.tag_ranges(tk.SEL):
             selected_text = self.native_text_widget.get(tk.SEL_FIRST, tk.SEL_LAST)
             print(f"Selected text: {selected_text}")
-        # If nothing is selected get the current line and the first word
         else:
             current_line = self.native_text_widget.get("insert linestart", "insert lineend").strip()
             if current_line:
-                # Split by spaces and get the first word
                 selected_text = current_line.split()[0]
             else:
                 messagebox.showinfo("No word selected", "Please select a word to save.")
@@ -227,14 +223,12 @@ class MainInterface(tk.Tk):
         
         source_lang = self.native_language_var.get()
             
-        # Check if word already exists
         if self.word_db.word_exists(selected_text):
             messagebox.showinfo("Word Already Saved", f"The word '{selected_text}' is already saved.")
             return
         
         word_id = self.word_db.save_word(selected_text, source_lang)
         
-        # Check if word was saved
         if word_id:
             messagebox.showinfo("Success", f"Word '{selected_text}' saved successfully!")
         else:

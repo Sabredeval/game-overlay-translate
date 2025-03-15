@@ -49,7 +49,6 @@ class WordDatabase:
         return self.cursor.fetchall()
     
     def search_words(self, query):
-        """Search for words containing the query string"""
         query = f"%{query}%"
         self.cursor.execute('''
         SELECT * FROM saved_words
@@ -60,13 +59,11 @@ class WordDatabase:
         return self.cursor.fetchall()
     
     def delete_word(self, word_id):
-        """Delete a word by ID"""
         self.cursor.execute('DELETE FROM saved_words WHERE id = ?', (word_id,))
         self.conn.commit()
         return self.cursor.rowcount > 0
     
     def toggle_favorite(self, word_id):
-        """Toggle favorite status for a word"""
         self.cursor.execute('SELECT favorite FROM saved_words WHERE id = ?', (word_id,))
         result = self.cursor.fetchone()
         if not result:
@@ -80,7 +77,6 @@ class WordDatabase:
         return new_status
     
     def get_favorites(self):
-        """Get all favorited words"""
         self.cursor.execute('''
         SELECT * FROM saved_words
         WHERE favorite = 1
@@ -90,11 +86,9 @@ class WordDatabase:
         return self.cursor.fetchall()
     
     def word_exists(self, word):
-        """Check if a word already exists in the database"""
         self.cursor.execute('SELECT id FROM saved_words WHERE word = ?', (word,))
         return self.cursor.fetchone() is not None
     
     def close(self):
-        """Close the database connection"""
         if self.conn:
             self.conn.close()
