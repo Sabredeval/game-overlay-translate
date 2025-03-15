@@ -122,7 +122,13 @@ class MainInterface(tk.Tk):
         SavedWordsInterface(self, self.word_db)
 
     def on_browse_words(self):
-        BrowserInterface(self, self.word_db)
+        from browser_interface import BrowserInterface
+
+        initial_word = None
+        if self.native_text_widget.tag_ranges(tk.SEL):
+            initial_word = self.native_text_widget.get(tk.SEL_FIRST, tk.SEL_LAST).strip()
+        
+        BrowserInterface(self, initial_word)
 
     def on_settings(self):
         SettingsInterface(self)
