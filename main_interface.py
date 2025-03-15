@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import Label, Text, Scrollbar, Button, OptionMenu, StringVar
-from selection_tool import GlobalSelectionApp  # Import the selection functionality
+from tkinter import Label, Text, Scrollbar, Button, OptionMenu, StringVar, messagebox
+from selection_tool import GlobalSelectionApp
 from pystray import Icon, Menu, MenuItem
+from database_manager import WordDatabase
 from PIL import Image
 import threading
 import keyboard
@@ -9,11 +10,13 @@ import keyboard
 
 class MainInterface(tk.Tk):
     def __init__(self):
+
         super().__init__()
         self.title("Pymage - Main Interface")
         self.geometry("800x600")
 
-        # Configure grid layout for dynamic resizing
+        self.word_db = WordDatabase()
+
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -37,10 +40,10 @@ class MainInterface(tk.Tk):
         button_frame = tk.Frame(self)
         button_frame.grid(row=1, column=0, pady=10, sticky="ew")
 
-        self.saved_words_button = Button(button_frame, text="Saved Words", command=self.on_saved_words)
+        self.saved_words_button = Button(button_frame, text="Saved Words", command=self.saved_words)
         self.saved_words_button.pack(side=tk.LEFT, padx=10)
 
-        self.browse_words_button = Button(button_frame, text="Browse Words", command=self.on_browse_words)
+        self.browse_words_button = Button(button_frame, text="Browse Words", command=self.browse_words)
         self.browse_words_button.pack(side=tk.LEFT, padx=10)
 
         self.settings_button = Button(button_frame, text="Settings", command=self.on_settings)
@@ -48,6 +51,9 @@ class MainInterface(tk.Tk):
 
         self.start_selection_button = Button(button_frame, text="Start Selection", command=self.start_selection)
         self.start_selection_button.pack(side=tk.LEFT, padx=10)
+
+        self.save_word_button = Button(button_frame, text="Save word", command=self.save_word)
+        self.save_word_button.pack(side=tk.LEFT, padx=10)
 
         # Native language text
         native_text_frame = tk.Frame(self)
@@ -108,10 +114,7 @@ class MainInterface(tk.Tk):
         self.tray_icon.stop()
         self.destroy()
 
-    def on_saved_words(self):
-        print("Saved Words...")
-
-    def on_browse_words(self):
+    def browse_words(self):
         print("Browse Words...")
 
     def on_settings(self):
@@ -122,6 +125,120 @@ class MainInterface(tk.Tk):
             self.selection_app = GlobalSelectionApp(self)
         self.selection_app.on_ctrl_e()
 
+    def saved_words(self):
+        """Open a window to view saved words"""
+        saved_window = tk.Toplevel(self)
+        saved_window.title("Saved Words")
+        saved_window.geometry("500x400")
+        saved_window.minsize(400, 300)
+        
+        search_frame = tk.Frame(saved_window)
+        search_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        tk.Label(search_frame, text="Search:").pack(side=tk.LEFT, padx=5)
+        search_entry = tk.Entry(search_frame, width=20)
+        search_entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        
+        def search_words():
+            query = search_entry.get().strip()
+            if query:
+                words = self.word_db.search_words(query)
+            else:
+                words = self.word_db.get_saved_words()
+            
+            update_word_list(words)
+        
+        search_button = tk.Button(search_frame, text="Search", command=search_words)
+        search_button.pack(side=tk.LEFT, padx=5)
+        
+        list_frame = tk.Frame(saved_window)
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        word_listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, font=("Arial", 12))
+        word_listbox.pack(fill=tk.BOTH, expand=True)
+        scrollbar.config(command=word_listbox.yview)
+        
+        button_frame = tk.Frame(saved_window)
+        button_frame.pack(fill=tk.X, padx=10, pady=10)
+        
+        def delete_selected_word():
+            selection = word_listbox.curselection()
+            if selection:
+                index = selection[0]
+                word_id = word_items[index][0]
+                
+                if messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this word?"):
+                    self.word_db.delete_word(word_id)
+                    words = self.word_db.get_saved_words()
+                    update_word_list(words)
+        
+        def toggle_favorite():
+            selection = word_listbox.curselection()
+            if selection:
+                index = selection[0]
+                word_id = word_items[index][0]
+                
+                self.word_db.toggle_favorite(word_id)
+                words = self.word_db.get_saved_words()
+                update_word_list(words)
+        
+        delete_button = tk.Button(button_frame, text="Delete", command=delete_selected_word)
+        delete_button.pack(side=tk.LEFT, padx=5)
+        
+        favorite_button = tk.Button(button_frame, text="Toggle Favorite", command=toggle_favorite)
+        favorite_button.pack(side=tk.LEFT, padx=5)
+        
+        def update_word_list(words):
+            word_listbox.delete(0, tk.END)
+            nonlocal word_items
+            word_items = words
+            
+            for word_item in word_items:
+                word_id, word_text, lang, date, favorite = word_item
+                star = "★" if favorite else "☆"
+                display_text = f"{star} {word_text} ({lang})"
+                word_listbox.insert(tk.END, display_text)
+        
+        # Initialize list with all saved words
+        word_items = self.word_db.get_saved_words()
+        update_word_list(word_items)
+
+    def save_word(self):
+        # Gets user selected text
+        if self.native_text_widget.tag_ranges(tk.SEL):
+            selected_text = self.native_text_widget.get(tk.SEL_FIRST, tk.SEL_LAST)
+            print(f"Selected text: {selected_text}")
+        # If nothing is selected get the current line and the first word
+        else:
+            current_line = self.native_text_widget.get("insert linestart", "insert lineend").strip()
+            if current_line:
+                # Split by spaces and get the first word
+                selected_text = current_line.split()[0]
+            else:
+                messagebox.showinfo("No word selected", "Please select a word to save.")
+                return
+        
+        if not selected_text:
+            messagebox.showinfo("No word selected", "Please select a word to save.")
+            return
+        
+        source_lang = self.native_language_var.get()
+            
+        # Check if word already exists
+        if self.word_db.word_exists(selected_text):
+            messagebox.showinfo("Word Already Saved", f"The word '{selected_text}' is already saved.")
+            return
+        
+        word_id = self.word_db.save_word(selected_text, source_lang)
+        
+        # Check if word was saved
+        if word_id:
+            messagebox.showinfo("Success", f"Word '{selected_text}' saved successfully!")
+        else:
+            messagebox.showinfo("Already Saved", f"The word '{selected_text}' is already in your saved list.")
 
 if __name__ == "__main__":
     app = MainInterface()
