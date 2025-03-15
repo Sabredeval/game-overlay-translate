@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import Label, Text, Scrollbar, Button, OptionMenu, StringVar
 from selection_tool import GlobalSelectionApp  # Import the selection functionality
 from pystray import Icon, Menu, MenuItem
-from PIL import Image, ImageDraw
+from PIL import Image
 import threading
+import keyboard
 
 
 class MainInterface(tk.Tk):
@@ -82,6 +83,7 @@ class MainInterface(tk.Tk):
 
         self.tray_icon = None
         self.create_tray_icon()
+        keyboard.add_hotkey("ctrl+e", self.start_selection)
 
     def create_tray_icon(self):
         icon_image = Image.open("icon.png")
@@ -116,8 +118,9 @@ class MainInterface(tk.Tk):
         print("Settings...")
 
     def start_selection(self):
-        selection_app = GlobalSelectionApp(self)
-        selection_app.start()
+        if not hasattr(self, "selection_app") or self.selection_app is None:
+            self.selection_app = GlobalSelectionApp(self)
+        self.selection_app.on_ctrl_e()
 
 
 if __name__ == "__main__":
