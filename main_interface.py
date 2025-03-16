@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import Label, Text, Scrollbar, Button, OptionMenu, StringVar, messagebox
 from pystray import Icon, Menu, MenuItem
-from selection_tool import GlobalSelectionApp
-from database_manager import WordDatabase
-from saved_words_interface import SavedWordsInterface
-from settings_interface import SettingsInterface
+from util.selection_tool import GlobalSelectionApp
+from model.database_manager import WordDatabase
+from view.saved_words_interface import SavedWordsInterface
+from view.settings_interface import SettingsInterface
 from PIL import Image
 import threading
 import keyboard
@@ -93,7 +93,7 @@ class MainInterface(tk.Tk):
         keyboard.add_hotkey("ctrl+e", self.start_selection)
 
     def create_tray_icon(self):
-        icon_image = Image.open("icon.png")
+        icon_image = Image.open("resources/icon.png")
 
         menu = Menu(
             MenuItem("Restore", self.restore_window),
@@ -122,7 +122,7 @@ class MainInterface(tk.Tk):
         SavedWordsInterface(self, self.word_db)
 
     def on_browse_words(self):
-        from browser_interface import BrowserInterface
+        from view.browser_interface import BrowserInterface
 
         initial_word = None
         if self.native_text_widget.tag_ranges(tk.SEL):

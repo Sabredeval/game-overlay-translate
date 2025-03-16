@@ -1,6 +1,4 @@
 /.venv
-/__pycache__
-/output/*
-/text/*
+__pycache__
 sentence_builder.py
 saved_words.db
