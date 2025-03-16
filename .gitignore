@@ -1,5 +1,4 @@
 /.venv
-/__pycache__
-/output/*
-unused_main.py
-unused_TextHighlighter.py
+__pycache__
+sentence_builder.py
+saved_words.db
