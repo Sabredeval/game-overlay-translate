@@ -2,6 +2,5 @@
 /__pycache__
 /output/*
 /text/*
-unused_main.py
-unused_TextHighlighter.py
+sentence_builder.py
 saved_words.db

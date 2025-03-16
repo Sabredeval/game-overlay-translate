@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import Label, Text, Scrollbar, Button, OptionMenu, StringVar, messagebox
-from selection_tool import GlobalSelectionApp
 from pystray import Icon, Menu, MenuItem
+from selection_tool import GlobalSelectionApp
 from database_manager import WordDatabase
 from saved_words_interface import SavedWordsInterface
 from settings_interface import SettingsInterface
