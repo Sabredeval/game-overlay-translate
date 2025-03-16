@@ -1,7 +1,10 @@
 import tkinter as tk
-from tkinter import Label, Text, Scrollbar, Button, OptionMenu, StringVar
-from selection_tool import GlobalSelectionApp  # Import the selection functionality
+from tkinter import Label, Text, Scrollbar, Button, OptionMenu, StringVar, messagebox
 from pystray import Icon, Menu, MenuItem
+from util.selection_tool import GlobalSelectionApp
+from model.database_manager import WordDatabase
+from view.saved_words_interface import SavedWordsInterface
+from view.settings_interface import SettingsInterface
 from PIL import Image
 import threading
 import keyboard
@@ -13,7 +16,8 @@ class MainInterface(tk.Tk):
         self.title("Pymage - Main Interface")
         self.geometry("800x600")
 
-        # Configure grid layout for dynamic resizing
+        self.word_db = WordDatabase()
+
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -48,6 +52,9 @@ class MainInterface(tk.Tk):
 
         self.start_selection_button = Button(button_frame, text="Start Selection", command=self.start_selection)
         self.start_selection_button.pack(side=tk.LEFT, padx=10)
+
+        self.save_word_button = Button(button_frame, text="Save word", command=self.save_word)
+        self.save_word_button.pack(side=tk.LEFT, padx=10)
 
         # Native language text
         native_text_frame = tk.Frame(self)
@@ -86,7 +93,7 @@ class MainInterface(tk.Tk):
         keyboard.add_hotkey("ctrl+e", self.start_selection)
 
     def create_tray_icon(self):
-        icon_image = Image.open("icon.png")
+        icon_image = Image.open("resources/icon.png")
 
         menu = Menu(
             MenuItem("Restore", self.restore_window),
@@ -105,22 +112,59 @@ class MainInterface(tk.Tk):
         self.tray_icon.stop()
 
     def exit_application(self):
-        self.tray_icon.stop()
+        if hasattr(self, "word_db"):
+            self.word_db.close()
+        if self.tray_icon:
+            self.tray_icon.stop()
         self.destroy()
 
     def on_saved_words(self):
-        print("Saved Words...")
+        SavedWordsInterface(self, self.word_db)
 
     def on_browse_words(self):
-        print("Browse Words...")
+        from view.browser_interface import BrowserInterface
+
+        initial_word = None
+        if self.native_text_widget.tag_ranges(tk.SEL):
+            initial_word = self.native_text_widget.get(tk.SEL_FIRST, tk.SEL_LAST).strip()
+        
+        BrowserInterface(self, initial_word)
 
     def on_settings(self):
-        print("Settings...")
+        SettingsInterface(self)
 
     def start_selection(self):
         if not hasattr(self, "selection_app") or self.selection_app is None:
             self.selection_app = GlobalSelectionApp(self)
         self.selection_app.on_ctrl_e()
+
+    def save_word(self):
+        if self.native_text_widget.tag_ranges(tk.SEL):
+            selected_text = self.native_text_widget.get(tk.SEL_FIRST, tk.SEL_LAST)
+        else:
+            current_line = self.native_text_widget.get("insert linestart", "insert lineend").strip()
+            if current_line:
+                selected_text = current_line.split()[0]
+            else:
+                messagebox.showinfo("No word selected", "Please select a word to save.")
+                return
+        
+        if not selected_text:
+            messagebox.showinfo("No word selected", "Please select a word to save.")
+            return
+        
+        source_lang = self.native_language_var.get()
+            
+        if self.word_db.word_exists(selected_text):
+            messagebox.showinfo("Word Already Saved", f"The word '{selected_text}' is already saved.")
+            return
+        
+        word_id = self.word_db.save_word(selected_text, source_lang)
+        
+        if word_id:
+            messagebox.showinfo("Success", f"Word '{selected_text}' saved successfully!")
+        else:
+            messagebox.showinfo("Already Saved", f"The word '{selected_text}' is already in your saved list.")
 
 
 if __name__ == "__main__":

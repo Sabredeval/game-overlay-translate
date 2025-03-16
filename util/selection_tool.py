@@ -1,8 +1,8 @@
 import tkinter as tk
 import keyboard
 from pynput import mouse
-from screen_capture import screenshot
-from text_extract import extract_text
+from util.screen_capture import screenshot
+from util.text_extract import extract_text
 
 class GlobalSelectionApp:
     def __init__(self, parent):
