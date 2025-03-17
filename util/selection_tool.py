@@ -15,7 +15,7 @@ class GlobalSelectionApp:
         self.root = tk.Toplevel(self.parent)
         self.root.attributes("-fullscreen", True)
         self.root.attributes("-topmost", True)
-        self.root.attributes("-alpha", 0.2)
+        self.root.attributes("-alpha", 0.1)
         self.root.configure(bg="black")
         self.root.withdraw()
 

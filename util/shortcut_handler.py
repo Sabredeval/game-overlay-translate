@@ -13,6 +13,7 @@ class ShortcutsHandler:
             self.shortcuts[key_combo] = callback
         except Exception as e:
             print(f"Error registering shortcut {key_combo}: {e}")
+            pass
     
     def unregister_all(self):
         try:
@@ -20,3 +21,4 @@ class ShortcutsHandler:
             self.shortcuts.clear()
         except Exception as e:
             print(f"Error unregistering shortcuts: {e}")
+            pass
