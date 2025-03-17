@@ -48,9 +48,7 @@ class GlobalSelectionApp:
             self.start_x, self.start_y = x, y
             self.rect_id = self.canvas.create_rectangle(x, y, x, y, outline="red", width=2)
         elif self.active and button == mouse.Button.left and not pressed:
-            self.root.attributes("-alpha", 0)
             capture = screenshot(self.start_x, self.start_y, x - self.start_x, y - self.start_y)
-            print("Saved as img.png")
             text = extract_text(capture)
             print(text)
             self.parent.native_text_widget.delete(1.0, tk.END)
