@@ -1,5 +1,4 @@
 from tkinter import messagebox
-from word_info import WordInfoPopup
 from view.saved_words_interface import SavedWordsInterface
 from view.settings_interface import SettingsInterface
 from view.browser_interface import BrowserInterface
@@ -7,6 +6,7 @@ from view.main_interface import MainView
 from model.database_manager import WordDatabase
 from model.config_model import ConfigModel
 from controller.word_database_controller import WordDatabaseController
+from controller.word_info_controller import WordInfoController
 from util.selection_tool import GlobalSelectionApp
 from util.shortcut_handler import ShortcutsHandler
 from util.tray_icon_handler import TrayIconHandler
@@ -72,7 +72,7 @@ class MainController:
         self.clipboard_controller.copy_selection_to_clipboard()
         clipboard_content = self.clipboard_controller.get_clipboard_text()
         if clipboard_content:
-            WordInfoPopup(self.view, clipboard_content)
+            WordInfoController(self.view, clipboard_content)
     
     def save_current_word(self, event=None):
         word = self.word_selection_controller.get_selected_text()
