@@ -1,4 +1,5 @@
 /.venv
+/resources/dictionaries
 __pycache__
 sentence_builder.py
 saved_words.db
