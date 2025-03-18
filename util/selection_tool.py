@@ -1,8 +1,10 @@
 import tkinter as tk
 import keyboard
 from pynput import mouse
-from util.screen_capture import screenshot
-from util.text_extract import extract_text
+from PIL import ImageGrab
+import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = r"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
 class GlobalSelectionApp:
     def __init__(self, parent):
@@ -15,7 +17,7 @@ class GlobalSelectionApp:
         self.root = tk.Toplevel(self.parent)
         self.root.attributes("-fullscreen", True)
         self.root.attributes("-topmost", True)
-        self.root.attributes("-alpha", 0.2)
+        self.root.attributes("-alpha", 0.1)
         self.root.configure(bg="black")
         self.root.withdraw()
 
@@ -49,9 +51,9 @@ class GlobalSelectionApp:
             self.rect_id = self.canvas.create_rectangle(x, y, x, y, outline="red", width=2)
         elif self.active and button == mouse.Button.left and not pressed:
             self.root.attributes("-alpha", 0)
-            capture = screenshot(self.start_x, self.start_y, x - self.start_x, y - self.start_y)
+            capture = self.screenshot(self.start_x, self.start_y, x - self.start_x, y - self.start_y)
             print("Saved as img.png")
-            text = extract_text(capture)
+            text = self.extract_text(capture)
             print(text)
             self.parent.native_text_widget.delete(1.0, tk.END)
             self.parent.native_text_widget.insert(tk.END, text)
@@ -75,6 +77,12 @@ class GlobalSelectionApp:
             on_click=self.on_mouse_press,
             on_move=self.on_mouse_move
         )
+
+    def screenshot(x, y, width, height):
+        return ImageGrab.grab((x, y, x + width, y + height))
+
+    def extract_text(img):
+        return pytesseract.image_to_string(img)
 
 if __name__ == "__main__":
     app = GlobalSelectionApp()

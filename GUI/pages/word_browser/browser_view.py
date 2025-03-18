@@ -108,7 +108,7 @@ class BrowserInterface(tk.Toplevel):
         if not word:
             return
             
-        from controller.wiktionary_service import WiktionaryService
+        from util.services.wiktionary_service import WiktionaryService
         service = WiktionaryService()
         word_data = service.get_word_data(word)
         

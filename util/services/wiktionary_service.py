@@ -57,8 +57,7 @@ class WiktionaryService:
         if not language_header:
             pass
         
-        # Extract definitions
-        # Usually in ordered lists (ol)
+        # Extract definitions usually ordered lists (ol)
         definition_lists = soup.find_all('ol')
         for ol in definition_lists:
             for li in ol.find_all('li', recursive=False):
