@@ -4,6 +4,25 @@ Overlay Trans is a desktop application designed to help users learn new language
 
 ---
 
+### **Project Structure**
+
+Project follows MVC pattern. Every instance of UI (page, tab) is divided to view and controller for better maintainability. 
+
+- core - Main application components
+- common - Shared utilities and styling
+- data - Data persistence layer
+- pages - Secondary windows
+- tabs - Main page notebook pads
+- util - Utility functions
+- resources - Static assets
+- app.py - Entry point of the program
+
+### **Dependencies**
+- Python 3.8 or higher
+- Required libraries: `tkinter`, `requests`, `beautifulsoup4`, `pynput`, `pystray`, `Pillow`, `pyserract`
+
+---
+
 ## **Features**
 
 ### **Current Features**
@@ -44,9 +63,3 @@ Overlay Trans is a desktop application designed to help users learn new language
 - **Quizzes and Games**: Add interactive quizzes and games like word matching, fill-in-the-blank, and word scramble.
 - **Import/Export database**: Allow users to improt or export their saved words.
 - **Collaborative Learning**: Enable users to share vocabulary lists and flashcards with friends.
-
----
-
-### **Dependencies**
-- Python 3.8 or higher
-- Required libraries: `tkinter`, `requests`, `beautifulsoup4`, `pynput`, `pystray`, `Pillow`, `pyserract`

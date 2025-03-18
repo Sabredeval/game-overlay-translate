@@ -1,4 +1,4 @@
-from pages.settings.settings_view import SettingsInterface
+from GUI.pages.settings.settings_view import SettingsInterface
 
 class SettingsController:
     def __init__(self, parent, config_model):
@@ -9,7 +9,6 @@ class SettingsController:
         self.view.set_controller(self)
     
     def get_settings(self):
-        """Get current application settings"""
         return {
             'source_language': self.parent.native_language_var.get(),
             'target_language': self.parent.translated_language_var.get(),

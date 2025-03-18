@@ -3,3 +3,4 @@
 __pycache__
 sentence_builder.py
 saved_words.db
+*.log

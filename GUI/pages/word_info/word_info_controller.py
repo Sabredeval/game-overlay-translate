@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import webbrowser
 import urllib.parse
-from pages.word_info.word_info_model import WordInfoModel, DatabaseHandler
-from pages.word_info.word_info_view import WordInfoView
+from GUI.pages.word_info.word_info_model import WordInfoModel, DatabaseHandler
+from GUI.pages.word_info.word_info_view import WordInfoView
 
 class WordInfoController:
     def __init__(self, parent, word, source_lang="English"):
