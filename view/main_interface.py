@@ -11,6 +11,7 @@ class MainView(tk.Tk):
         # Configure grid
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
+        self.grid_rowconfigure(4, weight=0)  # Status bar row
         self.grid_columnconfigure(0, weight=1)
         
         # Initialize widgets
@@ -18,11 +19,13 @@ class MainView(tk.Tk):
         self.translated_language_var = StringVar(self)
         self.native_text_widget = None
         self.translated_text_widget = None
+        self.status_label = None
         
         # Create components
         self._create_language_dropdowns()
         self._create_buttons()
         self._create_text_areas()
+        self._create_status_bar()
     
     def _create_language_dropdowns(self):
         dropdown_frame = tk.Frame(self)
@@ -97,3 +100,29 @@ class MainView(tk.Tk):
         
         save_word_button = Button(button_frame, text="Save Word", command=commands["save_word"])
         save_word_button.pack(side=tk.LEFT, padx=10)
+    
+    def _create_status_bar(self):
+        """Create a status bar at the bottom of the window"""
+        status_frame = tk.Frame(self, bd=1, relief=tk.SUNKEN)
+        status_frame.grid(row=4, column=0, sticky="ew")
+        
+        self.status_label = Label(status_frame, text="Ready")
+        self.status_label.pack(side=tk.LEFT, fill=tk.X)
+    
+    def show_status(self, message):
+        """Show a message in the status bar"""
+        if self.status_label:
+            self.status_label.config(text=message)
+            self.update_idletasks()
+    
+    def add_translate_button(self, command):
+        """Add a translate button to the UI"""
+        button_frame = self.winfo_children()[1]
+        
+        # Add separator
+        separator = tk.Frame(button_frame, width=2, bd=1, relief=tk.SUNKEN)
+        separator.pack(side=tk.LEFT, padx=10, fill=tk.Y, pady=2)
+        
+        # Add translate button
+        translate_button = Button(button_frame, text="Translate", bg="#4CAF50", fg="white", command=command)
+        translate_button.pack(side=tk.LEFT, padx=10)

@@ -12,6 +12,7 @@ from util.shortcut_handler import ShortcutsHandler
 from util.tray_icon_handler import TrayIconHandler
 from util.word_selection_handler import WordSelectionHandler
 from util.clipboard_handler import ClipboardHandler
+from util.translation_service import LibreTranslateService
 
 class MainController:
     def __init__(self):
@@ -30,6 +31,10 @@ class MainController:
         self.clipboard_controller = ClipboardHandler(self.view)
         self.word_selection_controller = WordSelectionHandler(self.view.native_text_widget)
         
+        # Initialize translation service
+        self.translation_service = LibreTranslateService()
+        self.translation_service.start()  # Start service in background
+        
         # Initialize tray icon
         self.tray_icon_handler = TrayIconHandler(
             "Pymage",
@@ -43,6 +48,60 @@ class MainController:
         self.setup_tray()
         
         self.view.on_close = self.minimize_to_tray
+        
+        # Add translation button
+        self.view.add_translate_button(self.translate_text)
+    
+    # Add this new method
+    def translate_text(self):
+        """Translate the text in the native text widget"""
+        text = self.view.native_text_widget.get("1.0", "end-1c").strip()
+        if not text:
+            return
+            
+        # Get selected languages
+        source_lang = self.get_language_code(self.view.native_language_var.get())
+        target_lang = self.get_language_code(self.view.translated_language_var.get())
+        
+        # Ensure translation service is ready
+        if not self.translation_service.ready:
+            self.view.show_status("Translation service is starting, please wait...")
+            if not self.translation_service.wait_until_ready(10):
+                messagebox.showinfo("Translation Service", "The translation service is still starting up. Please try again in a moment.")
+                return
+        
+        # Show translating status
+        self.view.show_status("Translating...")
+            
+        # Perform translation in a separate thread to avoid freezing UI
+        def do_translation():
+            translated = self.translation_service.translate(text, source_lang, target_lang)
+            if translated:
+                # Update the UI in the main thread
+                self.view.after(0, lambda: self.update_translation_result(translated))
+            else:
+                self.view.after(0, lambda: self.view.show_status("Translation failed"))
+        
+        import threading
+        threading.Thread(target=do_translation, daemon=True).start()
+    
+    def update_translation_result(self, translated_text):
+        """Update the translation result in the UI"""
+        self.view.translated_text_widget.config(state="normal")
+        self.view.translated_text_widget.delete("1.0", "end")
+        self.view.translated_text_widget.insert("1.0", translated_text)
+        self.view.translated_text_widget.config(state="disabled")
+        self.view.show_status("Translation completed")
+    
+    def get_language_code(self, language_name):
+        """Convert language name to ISO code"""
+        language_map = {
+            "English": "en",
+            "Spanish": "es",
+            "French": "fr",
+            "German": "de"
+        }
+        return language_map.get(language_name, "en")
     
     def setup_ui(self):
         # Set language options
@@ -103,6 +162,9 @@ class MainController:
     
     def exit_application(self):
         self.shortcuts_controller.unregister_all()
+        
+        # Stop translation service
+        self.translation_service.stop()
         
         if self.db:
             self.db.close()
