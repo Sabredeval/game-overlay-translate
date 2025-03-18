@@ -5,7 +5,6 @@ from PIL import ImageTk, Image
 
 class AppTheme:
     """Application theme colors constants and fonts"""
-    # Colors - Modern blue/gray palette
     PRIMARY = "#1976D2"        # Primary blue
     PRIMARY_DARK = "#0D47A1"   # Darker blue for hover states
     ACCENT = "#FF5722"         # Orange accent for highlights
@@ -15,7 +14,6 @@ class AppTheme:
     TEXT_LIGHT = "#FFFFFF"     # White text
     BORDER = "#B0BEC5"         # Light gray border
     
-    # Fonts - Using system fonts for best compatibility
     HEADING_FONT = ("Segoe UI", 12, "bold")
     BODY_FONT = ("Segoe UI", 10)
     SMALL_FONT = ("Segoe UI", 9)
@@ -24,13 +22,11 @@ class AppTheme:
     def configure_styles(cls):
         style = ttk.Style()
         
-        # Try to use a modern theme as base
         try:
-            style.theme_use('alt')  # More modern than default
+            style.theme_use('alt') 
         except:
-            pass  # If theme not available, use default
+            pass 
         
-        # Configure common elements
         style.configure('TFrame', background=cls.BG_LIGHT)
         style.configure('TLabel', background=cls.BG_LIGHT, foreground=cls.TEXT_DARK, font=cls.BODY_FONT)
         style.configure('TButton', foreground=cls.TEXT_LIGHT, background=cls.PRIMARY, 

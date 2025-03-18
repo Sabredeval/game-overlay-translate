@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import webbrowser
 import urllib.parse
-from model.word_info_manager import WordInfoModel, DatabaseHandler
-from view.word_info_interface import WordInfoView
+from pages.word_info.word_info_model import WordInfoModel, DatabaseHandler
+from pages.word_info.word_info_view import WordInfoView
 
 class WordInfoController:
     def __init__(self, parent, word, source_lang="English"):
@@ -39,23 +39,19 @@ class WordInfoController:
     
     def update_view(self):
         """Update UI with word data"""
-        # Fetch data (in production, this would be an async call)
+        # TODO - Make async call to fetch data
         self.model.fetch_data()
         
-        # Clear previous content
         for text_widget in [self.view.def_text, self.view.etym_text, self.view.examples_text]:
             text_widget.delete(1.0, tk.END)
-        
-        # Update definitions
+
         self.view.def_text.insert(tk.END, f"Definition of '{self.model.word}':\n\n", "heading")
         for i, definition in enumerate(self.model.definitions, 1):
             self.view.def_text.insert(tk.END, f"{i}. {definition}\n\n", "normal")
         
-        # Update etymology
         self.view.etym_text.insert(tk.END, f"Etymology of '{self.model.word}':\n\n", "heading")
         self.view.etym_text.insert(tk.END, self.model.etymology + "\n\n", "normal")
         
-        # Update examples
         self.view.examples_text.insert(tk.END, f"Examples of '{self.model.word}':\n\n", "heading")
         for i, example in enumerate(self.model.examples, 1):
             self.view.examples_text.insert(tk.END, f"{i}. {example}\n\n", "normal")
