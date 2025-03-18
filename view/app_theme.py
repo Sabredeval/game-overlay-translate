@@ -4,7 +4,7 @@ import tkinter as tk
 from PIL import ImageTk, Image
 
 class AppTheme:
-    """Application theme colors and fonts"""
+    """Application theme colors constants and fonts"""
     # Colors - Modern blue/gray palette
     PRIMARY = "#1976D2"        # Primary blue
     PRIMARY_DARK = "#0D47A1"   # Darker blue for hover states
@@ -22,7 +22,6 @@ class AppTheme:
     
     @classmethod
     def configure_styles(cls):
-        """Configure ttk styles using the theme colors"""
         style = ttk.Style()
         
         # Try to use a modern theme as base
@@ -40,17 +39,14 @@ class AppTheme:
                   background=[('active', cls.PRIMARY_DARK), ('pressed', cls.PRIMARY_DARK)],
                   foreground=[('active', cls.TEXT_LIGHT), ('pressed', cls.TEXT_LIGHT)])
         
-        # Custom styles
         style.configure('Header.TLabel', font=cls.HEADING_FONT, background=cls.PRIMARY, foreground=cls.TEXT_LIGHT)
         style.configure('Accent.TButton', background=cls.ACCENT)
         style.map('Accent.TButton', 
                   background=[('active', '#E64A19'), ('pressed', '#BF360C')])
         
-        # Combobox styling
         style.configure('TCombobox', foreground=cls.TEXT_DARK, background=cls.BG_LIGHT)
         style.map('TCombobox', fieldbackground=[('readonly', cls.BG_LIGHT)])
         
-        # Notebook styling
         style.configure('TNotebook', background=cls.BG_LIGHT, borderwidth=0)
         style.configure('TNotebook.Tab', background=cls.BG_LIGHT, foreground=cls.TEXT_DARK,
                        padding=(10, 5), font=cls.BODY_FONT)
@@ -59,7 +55,6 @@ class AppTheme:
                  foreground=[('selected', cls.TEXT_LIGHT)])
         
 class ToolTip:
-    """Creates tooltips for widgets"""
     def __init__(self, widget, text):
         self.widget = widget
         self.text = text
@@ -90,18 +85,15 @@ class ToolTip:
 
 
 class IconManager:
-    """Manages application icons"""
     def __init__(self):
         self.icons = {}
         self._load_icons()
     
     def _load_icons(self):
-        """Load application icons"""
-        # Create icons directory if needed
         icon_dir = os.path.join(os.path.dirname(__file__), "..", "resources", "icons")
         os.makedirs(icon_dir, exist_ok=True)
         
-        # Define icons to use - these are placeholders you'd replace with actual files
+        # TODO - Load actual icons from files
         icon_definitions = {
             "saved_words": "\uf02d",  # Book icon
             "browse": "\uf002",       # Search icon
@@ -112,12 +104,9 @@ class IconManager:
             "logo": None              # Custom logo
         }
         
-        # For now, we'll create placeholder images since we don't have actual icons
         for name, symbol in icon_definitions.items():
-            # Create simple colored rectangle as placeholder
             img = Image.new('RGBA', (24, 24), AppTheme.PRIMARY)
             self.icons[name] = ImageTk.PhotoImage(img)
     
     def get(self, name):
-        """Get icon by name"""
         return self.icons.get(name)

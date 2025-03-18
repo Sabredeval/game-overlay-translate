@@ -1,4 +1,5 @@
 class WordInfoModel:
+    """This class is responsible for managing the data of a word info window"""
     def __init__(self, word, source_lang="English"):
         self.word = word
         self.source_lang = source_lang
@@ -7,7 +8,7 @@ class WordInfoModel:
         self.examples = []
 
     def fetch_data(self):
-        # This would be replaced with actual API calls in production
+        # TODO - Implement actual data fetching
         self.definitions = [
             "This is a placeholder definition.",
             "In a real implementation, this would show actual word data."

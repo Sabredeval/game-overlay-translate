@@ -2,6 +2,7 @@ import sqlite3
 import os
 
 class WordDatabase:
+    """Manages the SQLite database for saved words"""
     def __init__(self, db_path="saved_words.db"):
         db_dir = os.path.dirname(os.path.abspath(db_path))
         if db_dir and not os.path.exists(db_dir):
