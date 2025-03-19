@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 class WiktionaryService:
     def __init__(self):
         self.base_url = "https://en.wiktionary.org/w/api.php"
+        self.pos_tags = ["Noun", "Verb", "Adjective", "Adverb", "Pronoun", 
+                        "Preposition", "Conjunction", "Interjection"]
         
     def get_word_data(self, word, language="English"):
         params = {
@@ -36,9 +38,6 @@ class WiktionaryService:
     
     def parse_wiktionary_content(self, html_content, target_language):
         soup = BeautifulSoup(html_content, 'html.parser')
-
-        print(soup)
-        
         result = {
             "definitions": [],
             "etymology": "",
@@ -50,7 +49,7 @@ class WiktionaryService:
         
         # Try to find the language section
         language_header = None
-        for header in soup.find_all(['h2', 'h3', 'h4']):
+        for header in soup.find_all(['h2']):
             header_text = header.get_text().strip()
             if header_text == target_language:
                 language_header = header
@@ -229,11 +228,11 @@ class TatoebaService:
 
 # Run to test the service
 if __name__ == "__main__":
-    # service = WiktionaryService()
-    tatoeba = TatoebaService()
-    # result = service.get_word_data("hello")
-    result = tatoeba.search_sentences(
-        word="hello", 
-        source_lang="eng", 
-    )
-    print(json.dumps(result, indent=2))
+    service = WiktionaryService()
+    # tatoeba = TatoebaService()
+    result = service.get_word_data("hello")
+    # result = tatoeba.search_sentences(
+    #     word="hello", 
+    #     source_lang="eng", 
+    # )
+    # print(json.dumps(result, indent=2))

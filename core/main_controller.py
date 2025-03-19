@@ -103,8 +103,7 @@ class MainController:
     def setup_shortcuts(self):
         self.shortcuts_controller.register_shortcut("ctrl+q", self.show_word_info)
         self.shortcuts_controller.register_shortcut("ctrl+e", self.start_selection)
-        self.shortcuts_controller.register_shortcut("ctrl+d", 
-            lambda: self.dictionary_controller.perform_lookup())
+        self.shortcuts_controller.register_shortcut("ctrl+d", lambda: self.dictionary_controller.perform_lookup())
     
     def setup_tray(self):
         self.tray_icon_handler.create_icon()

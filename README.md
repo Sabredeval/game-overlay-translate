@@ -17,49 +17,82 @@ Project follows MVC pattern. Every instance of UI (page, tab) is divided to view
 - resources - Static assets
 - app.py - Entry point of the program
 
+## Overlay Trans - Software Features 
+<i> Planned and current
+
+### Core Features
+
+#### UI/UX
+- [✓] Basic interface
+- [✓] Enhanced UI/UX
+- [✓] Settings panel
+  - [✓] Dark mode
+  - [✓] Font size adjustments
+  - [✓] Keyboard shortcuts
+
+#### Text Selection Tool
+- [✓] Basic functionality
+- [ ] Ensure correct functionality in all contexts
+- [ ] Connect to reading assistant
+
+#### Dictionary Integration
+- [ ] Improve `Wiktionary` parsing with `BeautifulSoup`
+- [ ] Optimize performance with categorization and lazy loading
+- [ ] Add favorites system for `Wiktionary` pages
+
+### Database
+
+#### Word Storage
+- [✓] Basic save words functionality
+- [ ] Expand storage capabilities
+- [ ] Add categorization for saved words
+- [ ] Allow saving favorite `Tatoeba` sentences
+
+### Language Processing
+
+#### Analysis Tools
+- [ ] Parts of speech analysis
+- [ ] Lemma finder (basic word form detection)
+- [ ] spaCy integration for tokenization, stemming, and POS tagging
+
+#### Language Support
+- [✓] English
+- [ ] Spanish
+- [ ] German
+- More in future...
+
+### Learning Features
+
+#### Reading Assistant
+- [ ] Import `PDF`/`FB2`/`EPUB` documents
+- [ ] Import text via shortcut
+- [ ] Connect selection tool
+- [ ] Integrate language analyzer tool
+- [✓] Add unknown words to vocabulary with one click
+
+#### Vocabulary Builder
+- [ ] Create visually appealing word lists
+- [ ] Add/edit/delete word collections
+- [ ] Organize by categories/difficulty/frequency
+
+#### Interactive Learning (Gamification)
+- [ ] `Flash cards` for vocabulary practice
+- [ ] `Fill-in-the-blank` exercises for contextual learning
+- [ ] `Sentence builder` for word ordering practice
+- [ ] `Parts of speech identifier` for grammar understanding
+- [ ] `Word matching` for vocabulary practice
+
+#### Study Dashboard
+- [ ] Visual statistics and progress tracking
+- [ ] Learning streak and achievement system
+- [ ] Performance analytics
+
+### Non-Priority Improvements
+- [ ] Word translation pop-up
+- [ ] Full text translation functionality
+</i>
+---
+
 ### **Dependencies**
 - Python 3.8 or higher
 - Required libraries: `tkinter`, `requests`, `beautifulsoup4`, `pynput`, `pystray`, `Pillow`, `pyserract`
-
----
-
-## **Features**
-
-### **Current Features**
-- **Word Saving**: Save selected words from the native text widget to your personal vocabulary list.
-- **Wiktionary Integration**: Look up words directly in Wiktionary for definitions, etymology, pronunciation, and examples.
-- **Saved Words Manager**: View, search, and manage your saved words with options to delete or mark them as favorites.
-- **Screen Selection Tool**: Capture text from your screen and extract it for translation or learning purposes.
-
----
-
-## **Planned Features**
-
-### **1. Settings**
-- **Dark Mode**: Add a dark mode option for better usability in low-light environments.
-- **Font/Font Size Customization**: Allow users to adjust the font or font size for better readability.
-
-### **2. Enhanced UI/UX**
-- Improve the overall design and layout of the application.
-- Add animations and transitions for a smoother user experience.
-
-### **3. Translate Word Pop-Up**
-- Implement a feature where users can hover over or right-click a word to see its translation in a pop-up window.
-- Include additional information about the word such as pronunciation and example sentences in the pop-up.
-
-### **4. Flash Cards**
-- Introduce a flashcard system for vocabulary practice.
-- Allow users to create flashcards from their saved words and review them potentially using space repetition.
-
-### **5. Translation Functionality**
-- Add a built-in translation feature to translate text between multiple languages.
-- Support offline translation.
-
-### **6. Parts of Speech Analysis**
-- Analyze sentences to identify parts of speech (e.g., nouns, verbs, adjectives).
-
-### **7. And More...**
-- **Progress Tracking**: Track the number of words learned, sentences built, and quizzes completed.
-- **Quizzes and Games**: Add interactive quizzes and games like word matching, fill-in-the-blank, and word scramble.
-- **Import/Export database**: Allow users to improt or export their saved words.
-- **Collaborative Learning**: Enable users to share vocabulary lists and flashcards with friends.
