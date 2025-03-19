@@ -18,7 +18,7 @@ from GUI.tabs.explorer.explorer_controller import ExplorerController
 # Data imports
 from data.config_model import ConfigModel
 from data.database_manager import WordDatabase
-from util.services.wiktionary_service import WiktionaryService
+from util.services.online_service import WiktionaryService
 
 # Util imports
 from util.selection_tool import GlobalSelectionApp

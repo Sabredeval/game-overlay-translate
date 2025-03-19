@@ -1,5 +1,5 @@
 import threading
-from util.services.wiktionary_service import WiktionaryService
+from util.services.online_service import WiktionaryService
 
 class WordInfoModel:
     """Manages the data for a word information window"""

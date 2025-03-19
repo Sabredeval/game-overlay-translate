@@ -1,4 +1,4 @@
-from util.services.wiktionary_service import WiktionaryService
+from util.services.online_service import WiktionaryService
 import threading
 
 class WordDataService:
