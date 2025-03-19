@@ -11,7 +11,7 @@ from GUI.tabs.dashboard.dashboard_view import DashboardView
 class MainView(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Pymage - Language Learning Assistant")
+        self.title("Pylla - Language Learning Assistant")
         self.geometry("1000x700")
         self.minsize(800, 600)
         

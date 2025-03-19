@@ -11,16 +11,10 @@ class SavedWordsInterface(tk.Toplevel):
         self.geometry("500x400")
         self.minsize(400, 300)
         
-        # Search frame
         self.create_search_frame()
-        
-        # Words list
         self.create_list_frame()
-        
-        # Buttons
         self.create_button_frame()
         
-        # Load initial data
         self.word_items = self.word_db.get_saved_words()
         self.update_word_list(self.word_items)
     

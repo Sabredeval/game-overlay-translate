@@ -86,6 +86,12 @@ class WordDatabase:
         
         return self.cursor.fetchall()
     
+    def count_words(self):
+        """Count the total number of saved words"""
+        self.cursor.execute('SELECT COUNT(*) FROM saved_words')
+        result = self.cursor.fetchone()
+        return result[0] if result else 0
+    
     def word_exists(self, word):
         self.cursor.execute('SELECT id FROM saved_words WHERE word = ?', (word,))
         return self.cursor.fetchone() is not None

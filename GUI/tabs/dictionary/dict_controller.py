@@ -1,6 +1,7 @@
 import threading
 import webbrowser
 import urllib.parse
+from util.services.word_data_service import WordDataService
 
 class DictionaryController:
     def __init__(self, view, wiktionary_service, db_manager):
@@ -16,6 +17,9 @@ class DictionaryController:
         self.wiktionary_service = wiktionary_service
         self.db_manager = db_manager
         self.current_word_data = None
+        
+        # Create word data service
+        self.word_data_service = WordDataService()
     
     def lookup_word(self):
         """Look up the current word in the dictionary"""
@@ -26,38 +30,19 @@ class DictionaryController:
         # Show loading state
         self.view.show_loading()
         
-        # Perform lookup in background thread
-        threading.Thread(
-            target=self._background_lookup,
-            args=(word,),
-            daemon=True
-        ).start()
+        # Use WordDataService to fetch word data
+        self.word_data_service.fetch_word_data_async(
+            word,
+            "English",  # Default language
+            self._on_word_data_loaded
+        )
     
-    def _background_lookup(self, word):
-        """Perform dictionary lookup in background thread"""
-        try:
-            word_data = self.wiktionary_service.get_word_data(word)
-            
-            # Update UI in main thread
-            self.view.after(0, lambda: self._update_ui_with_results(word_data))
-        except Exception as e:
-            self.view.after(0, lambda: self._handle_lookup_error(str(e)))
-    
-    def _update_ui_with_results(self, word_data):
-        """Update UI with lookup results"""
+    def _on_word_data_loaded(self, word_data):
+        """Handle word data loaded callback"""
         self.current_word_data = word_data
-        self.view.display_word_info(word_data)
-    
-    def _handle_lookup_error(self, error_message):
-        """Handle errors during lookup"""
-        error_data = {
-            "word": self.view.get_current_word(),
-            "definitions_by_pos": {"error": [error_message]},
-            "examples": [],
-            "etymology": "Error retrieving etymology",
-            "related_words": {}
-        }
-        self.view.display_word_info(error_data)
+        
+        # Update UI in main thread
+        self.view.after(0, lambda: self.view.display_word_info(word_data))
     
     def on_search_text_changed(self, text):
         """Handle changes to the search text for suggestions"""
@@ -87,25 +72,37 @@ class DictionaryController:
         self.view.dict_search_var.set(word)
         self.lookup_word()
     
-    def save_current_word(self):
+    def save_current_word(self, language="English"):
         """Save the current word to the database"""
         word = self.view.get_current_word()
         if not word or not self.db_manager:
             return
         
-        # We should have a proper method in the main controller for this
-        # For now, we'll just call through to the database directly
-        result = self.db_manager.save_word(word, "English")  # Default language
+        result = self.db_manager.save_word(word, language)
         
-        # Ideally we would show feedback to the user
-        # We could expose a method on the main controller to show a message
         print(f"Saved word '{word}' with result: {result}")
     
     def play_pronunciation(self):
         """Play pronunciation of current word"""
-        # This would require audio capabilities
-        # For now, just print a message
-        print(f"Playing pronunciation for '{self.view.get_current_word()}'")
+        word = self.view.get_current_word()
+        if not word:
+            return
+            
+        try:
+            try:
+                import win32com.client
+                speaker = win32com.client.Dispatch("SAPI.SpVoice")
+                speaker.Speak(word)
+                return
+            except ImportError:
+                pass
+                
+            # Fall back to web browser
+            encoded_word = urllib.parse.quote(word)
+            url = f"https://www.google.com/search?q=pronunciation+of+{encoded_word}"
+            webbrowser.open(url)
+        except Exception as e:
+            print(f"Error pronouncing word: {e}")
     
     def open_in_browser(self):
         """Open the current word in a web browser"""

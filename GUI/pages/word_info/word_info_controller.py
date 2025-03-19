@@ -1,28 +1,42 @@
 import webbrowser
 import urllib.parse
 from tkinter import ttk, messagebox
-
-from GUI.pages.word_info.word_info_model import WordInfoModel
-from GUI.pages.word_info.word_info_view import WordInfoView
+from GUI.common.word_display import WordDisplay
+from util.services.word_data_service import WordDataService
 
 class WordInfoController:
     def __init__(self, parent, word, source_lang="English"):
         self.parent = parent
         self.word = word
         self.source_lang = source_lang
+        self.word_data = None
         
-        self.model = WordInfoModel(word, source_lang)
-        self.view = WordInfoView(parent)
-        self.view.title(f"Word Info: {word}")
-        self.view.create_ui(word)
-        self.add_buttons()
-        self.load_word_info()
-        self.view._on_related_word_click = self.on_related_word_click
+        self.view = self._create_view()
+        self._setup_components()
+        
+        self.word_service = WordDataService()
+        self.load_word_data()
     
-    def add_buttons(self):
-        """Add action buttons to the Word Info view"""
-        button_frame = self.view.button_frame
+    def _create_view(self):
+        """Create the word info view"""
+        from GUI.pages.word_info.word_info_view import WordInfoView
         
+        view = WordInfoView(self.parent)
+        view.title(f"Word Info: {self.word}")
+        view.create_ui()
+        return view
+    
+    def _setup_components(self):
+        """Set up components after view is created"""
+        self.word_display = WordDisplay(self.view.content_frame)
+        
+        self.pronunciation_label = ttk.Label(self.view.header_frame, text="", font=("Segoe UI", 9))
+        self.pronunciation_label.pack(side="left", padx=(10, 0))
+        
+        self._add_buttons(self.view.button_frame)
+    
+    def _add_buttons(self, button_frame):
+        """Add action buttons to the view"""
         save_btn = ttk.Button(button_frame, text="Save Word", command=self.save_word)
         save_btn.pack(side="left", padx=5)
         
@@ -35,84 +49,67 @@ class WordInfoController:
         close_btn = ttk.Button(button_frame, text="Close", command=self.view.destroy)
         close_btn.pack(side="right", padx=5)
     
-    def load_word_info(self):
+    def load_word_data(self):
         """Load word information asynchronously"""
-        self.model.fetch_data(callback=self.update_view)
+        self.word_display.show_loading(f"Looking up information for '{self.word}'...")
+        self.word_service.fetch_word_data_async(
+            self.word, 
+            self.source_lang,
+            self._on_word_data_loaded
+        )
     
-    def update_view(self):
-        """Update the view with data from the model"""
-        self.view.after(0, self._update_view_main_thread)
-    
-    def _update_view_main_thread(self):
-        """Update view elements with model data (in main thread)"""
-        self.view.hide_loading()
+    def _on_word_data_loaded(self, word_data):
+        """Handle word data loaded callback"""
+        self.word_data = word_data
         
-        if self.model.error:
-            self.view.display_error(self.model.error)
+        self.view.after(0, self._update_view)
+    
+    def _update_view(self):
+        """Update the view with loaded data"""
+        if not self.word_data:
             return
+            
+        self.word_display.display_word_data(
+            self.word_data,
+            self.on_related_word_click
+        )
         
-        self.view.update_pronunciation(self.model.pronunciation)
-        self.view.update_definitions(self.model.definitions_by_pos)
-        self.view.update_etymology(self.model.etymology)
-        self.view.update_examples(self.model.examples)
-        self.view.update_related_words(self.model.related_words)
+        if self.word_data.get("pronunciation"):
+            self.pronunciation_label.config(text=f"/{self.word_data['pronunciation']}/")
+    
+    def on_related_word_click(self, word):
+        """Handle click on a related word"""
+        WordInfoController(self.parent, word, self.source_lang)
     
     def save_word(self):
-        """Save the current word to database"""
+        """Save the word to the vocabulary database"""
+        if not self.word:
+            return
+            
         parent = self.view.parent
         if hasattr(parent, "db") and parent.db:
-            source_lang = self.model.source_lang
-            
-            result = self.model.save_word(parent.db, self.model.word, source_lang)
+            result = parent.db.save_word(self.word, self.source_lang)
             
             if result is None:
                 messagebox.showinfo("Word Already Saved", 
-                                   f"The word '{self.model.word}' is already saved.")
+                                   f"The word '{self.word}' is already saved.")
             elif result:
                 messagebox.showinfo("Success", 
-                                   f"Word '{self.model.word}' saved successfully!")
+                                   f"Word '{self.word}' saved successfully!")
             else:
-                messagebox.showinfo("Error", 
-                                   "Could not save the word.")
+                messagebox.showinfo("Error", "Could not save the word.")
         else:
             messagebox.showinfo("Database Error", 
                               "Cannot save word - database not available.")
     
-    def pronounce_word(self, language="en"):
-        """Play pronunciation of the word with Google Text-to-Speech and playsound library. 
-           Creates temporary mp3 file.
-        """
-        try:
-            from gtts import gTTS
-            import os
-            import tempfile
-            from playsound import playsound
-            
-            tts = gTTS(text=self.word, lang=language)
-
-            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp3')
-            temp_file.close()
-            tts.save(temp_file.name)
-            
-            playsound(temp_file.name)
-                
-            os.unlink(temp_file.name)
-        except Exception as e:
-            try:
-                import win32com.client
-                speaker = win32com.client.Dispatch("SAPI.SpVoice")
-                speaker.Speak(self.word)
-            except Exception as e:
-                messagebox.showinfo("Pronunciation Error", 
-                                f"Could not pronounce word: {str(e)}")
-    
+    def pronounce_word(self):
+        """Pronounce the word using the speech service"""
+        if self.word:
+            if self.word_service.speak(self.word) is not None:
+                messagebox.showinfo("Error", "Could not play pronunciation.")
+        
     def open_in_browser(self):
-        """Open the word in Wiktionary browser"""
-        encoded_word = urllib.parse.quote(self.model.word)
+        """Open the word in Wiktionary"""
+        encoded_word = urllib.parse.quote(self.word)
         url = f"https://en.wiktionary.org/wiki/{encoded_word}"
         webbrowser.open(url)
-    
-    def on_related_word_click(self, word):
-        """Handle click on related word"""
-        # Create a new word info window for the related word
-        WordInfoController(self.parent, word, self.source_lang)
