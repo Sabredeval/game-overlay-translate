@@ -18,6 +18,10 @@ class AppTheme:
     BODY_FONT = ("Segoe UI", 10)
     SMALL_FONT = ("Segoe UI", 9)
     
+    # Word Info Page Fonts
+    TITLE_FONT = ("Segoe UI", 18, "bold")
+    SUBHEADING_FONT = ("Segoe UI", 11, "bold")
+
     @classmethod
     def configure_styles(cls):
         style = ttk.Style()
