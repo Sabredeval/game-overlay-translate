@@ -36,6 +36,8 @@ class WiktionaryService:
     
     def parse_wiktionary_content(self, html_content, target_language):
         soup = BeautifulSoup(html_content, 'html.parser')
+
+        print(soup)
         
         result = {
             "definitions": [],

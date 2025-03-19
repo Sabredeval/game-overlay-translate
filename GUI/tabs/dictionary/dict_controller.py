@@ -27,10 +27,8 @@ class DictionaryController:
         if not word:
             return
         
-        # Show loading state
         self.view.show_loading()
         
-        # Use WordDataService to fetch word data
         self.word_data_service.fetch_word_data_async(
             word,
             "English",  # Default language
@@ -39,9 +37,16 @@ class DictionaryController:
     
     def _on_word_data_loaded(self, word_data):
         """Handle word data loaded callback"""
+        if word_data.get("needs_variant_selection"):
+            self.word_data_service.show_variant_selector(
+                self.view, 
+                word_data["variants"],
+                self._on_word_data_loaded 
+            )
+            return
+            
         self.current_word_data = word_data
         
-        # Update UI in main thread
         self.view.after(0, lambda: self.view.display_word_info(word_data))
     
     def on_search_text_changed(self, text):
@@ -84,25 +89,10 @@ class DictionaryController:
     
     def play_pronunciation(self):
         """Play pronunciation of current word"""
-        word = self.view.get_current_word()
-        if not word:
-            return
-            
-        try:
-            try:
-                import win32com.client
-                speaker = win32com.client.Dispatch("SAPI.SpVoice")
-                speaker.Speak(word)
-                return
-            except ImportError:
-                pass
-                
-            # Fall back to web browser
-            encoded_word = urllib.parse.quote(word)
-            url = f"https://www.google.com/search?q=pronunciation+of+{encoded_word}"
-            webbrowser.open(url)
-        except Exception as e:
-            print(f"Error pronouncing word: {e}")
+        if self.word_data_service.speak(self.view.get_current_word()) != None:
+            from tkinter import messagebox
+            messagebox.showinfo("Pronunciation", "Pronunciation not available right now.")
+        
     
     def open_in_browser(self):
         """Open the current word in a web browser"""

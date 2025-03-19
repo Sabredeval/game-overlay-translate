@@ -65,6 +65,17 @@ class BrowserInterface(tk.Toplevel):
     
     def _on_word_data_loaded(self, word_data):
         """Handle word data loaded"""
+        # Check if we need to select a variant first
+        if word_data.get("needs_variant_selection"):
+            # Show variant selector dialog
+            self.word_service.show_variant_selector(
+                self, 
+                word_data["variants"],
+                self._on_word_data_loaded  # Pass the same callback for the retry
+            )
+            return
+            
+        # Normal processing
         self.after(0, lambda: self._update_display(word_data))
     
     def _update_display(self, word_data):

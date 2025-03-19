@@ -57,11 +57,23 @@ class WordInfoController:
             self.source_lang,
             self._on_word_data_loaded
         )
-    
+        
     def _on_word_data_loaded(self, word_data):
         """Handle word data loaded callback"""
+        # Check if we need to select a variant first
+        if word_data.get("needs_variant_selection"):
+            # Show variant selector dialog
+            self.word_service.show_variant_selector(
+                self.view, 
+                word_data["variants"],
+                self._on_word_data_loaded  # Pass the same callback for the retry
+            )
+            return
+            
+        # Normal processing
         self.word_data = word_data
         
+        # Update view in main thread
         self.view.after(0, self._update_view)
     
     def _update_view(self):
